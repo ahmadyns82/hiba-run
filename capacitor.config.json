@@ -1,0 +1,32 @@
+{
+  "appId": "com.hibarun.app",
+  "appName": "Hiba Run",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": [
+      "*.googleapis.com",
+      "*.google.com",
+      "*.gstatic.com",
+      "maps.googleapis.com",
+      "api.allorigins.win",
+      "corsproxy.io",
+      "api.codetabs.com",
+      "thingproxy.freeboard.io",
+      "ipapi.co",
+      "*.nna-leb.gov.lb",
+      "*.mtv.com.lb",
+      "*.lbci.com",
+      "*.aljadeed.tv",
+      "*.aljazeera.net",
+      "*.alhadath.net",
+      "feeds.feedburner.com"
+    ]
+  },
+  "ios": {
+    "allowsLinkPreview": false,
+    "contentInset": "automatic",
+    "scrollEnabled": true,
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}

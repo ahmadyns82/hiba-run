@@ -1,0 +1,67 @@
+workflows:
+  hiba-run-ios:
+    name: Hiba Run iOS Build
+    max_build_duration: 60
+    environment:
+      node: 22.11.0
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Prepare www folder
+        script: |
+          mkdir -p www/icons
+          cp index.html www/index.html
+          cp sw.js www/ 2>/dev/null || true
+          cp manifest.json www/ 2>/dev/null || true
+          if [ -d icons ]; then cp -r icons www/; fi
+          echo "www contents:"; ls www/
+
+      - name: Install Capacitor
+        script: |
+          npm install
+          npx cap add ios
+          npx cap sync ios
+
+      - name: Patch Info.plist
+        script: |
+          PLIST="ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Add :NSLocationWhenInUseUsageDescription string 'Hiba! Run! needs your location to alert you when danger is nearby.'" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysAndWhenInUseUsageDescription string 'Hiba! Run! needs your location for background alerts.'" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSLocationAlwaysUsageDescription string 'Hiba! Run! needs your location for background alerts.'" "$PLIST" 2>/dev/null || true
+          echo "Info.plist patched"
+
+      - name: Build unsigned IPA
+        script: |
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -sdk iphoneos \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath $CM_BUILD_DIR/derived \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            build
+
+      - name: Package IPA
+        script: |
+          APP=$(find $CM_BUILD_DIR/derived -name "App.app" -path "*Release-iphoneos*" | head -1)
+          [ -z "$APP" ] && APP=$(find $CM_BUILD_DIR/derived -name "*.app" -path "*iphoneos*" | head -1)
+          echo "Found: $APP"
+          mkdir -p $CM_BUILD_DIR/Payload
+          cp -r "$APP" $CM_BUILD_DIR/Payload/App.app
+          cd $CM_BUILD_DIR && zip -r HibaRun-unsigned.ipa Payload
+          ls -lh HibaRun-unsigned.ipa
+
+    artifacts:
+      - $CM_BUILD_DIR/HibaRun-unsigned.ipa
+    publishing:
+      email:
+        recipients:
+          - your@email.com
+        notify:
+          success: true
+          failure: true

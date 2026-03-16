@@ -1,0 +1,13 @@
+{
+  "name": "hiba-run",
+  "version": "1.0.0",
+  "description": "Hiba! Run! Lebanese emergency alert app",
+  "main": "index.html",
+  "scripts": { "build": "echo No build step" },
+  "dependencies": {
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor/android": "^6.0.0"
+  },
+  "devDependencies": { "@capacitor/cli": "^6.0.0" }
+}
